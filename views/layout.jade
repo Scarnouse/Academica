@@ -1,18 +1,51 @@
-doctype html
 html
   head
-    title= title
+    title Ejemplo CRUD fullstack
     meta(charset='UTF-8')
-
-    script(src="https://code.jquery.com/jquery-3.1.1.min.js")
-    script(src="javascripts/index.js")
-
-    link(href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css", rel="stylesheet", integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u", crossorigin="anonymous")   
-    link(rel='stylesheet', href='/stylesheets/style.css')
+    script(src='https://code.jquery.com/jquery-3.1.1.min.js')
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+    script(src='/javascripts/index.js')
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
   body
-    div(class='wrapper')
-      div(class='jumbotron')
-        div(class='container')
-          block content
-          
-    footer(class='well') Copyleft Manuel Quesada Segura 2º DAM
+    .container
+        #custom-bootstrap-menu.navbar.navbar-inverse(role='navigation')
+            .container-fluid
+              .navbar-header
+                a.navbar-brand(href='#' onclick='mainMenu()') Académica
+                button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-menubuilder')
+                  span.sr-only Toggle navigation
+                  span.icon-bar
+                  span.icon-bar
+                  span.icon-bar
+              .collapse.navbar-collapse.navbar-menubuilder
+                ul.nav.navbar-nav.navbar-left
+                  li
+                    a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-haspopup='true', aria-expanded='false')
+                      | Alumno 
+                      span.caret
+                    ul.dropdown-menu
+                      li
+                        a(href='#') Create
+                      li
+                        a(href='#') Read
+                      li
+                        a(href='#') Update
+                      li
+                        a(href='#') Delete
+                  li
+                    a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-haspopup='true', aria-expanded='false')
+                      | Profesor 
+                      span.caret
+                    ul.dropdown-menu
+                      li
+                        a(href='#' onclick='profesorForm()') Create
+                      li
+                        a(href='#' onclick='profesorRead()') Read
+                      li
+                        a(href='#' onclick='profesorUpdate()' ) Update
+                      li
+                        a(href='#' onclick='profesorDelete()') Delete
+        div(id='main')
+            block content 
+
+        footer(class='well') Copyleft Manuel Quesada Segura 2º DAM
