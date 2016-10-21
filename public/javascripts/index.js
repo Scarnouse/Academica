@@ -21,25 +21,25 @@ function profesorRead(del) {
             } else {
                 table.append($('<tr />').append('<th>id</th>', '<th>nombre</th>', '<th>apellidos</th>', '<th>email</th>'));
             }
-            
-            for (var profe in json) {
-                console.log(json);
-                if (del === 1) {
-                    table.append($('<tr />').append('<td>' + json[profe].id + '</td>',
-                        '<td>' + json[profe].nombre + '</td>', '<td>' + json[profe].apellido + '</td>',
-                        '<td>' + json[profe].email + '</td>', 
-                        '<td> <button class="btn btn-danger" onclick="profesorDel()" value='+json[profe]._id+' id="_id">eliminar</button></td>'));
-                } else if (del === 2) {
-                    table.append($('<tr />').append('<td>' + json[profe].id + '</td>',
-                        '<td>' + json[profe].nombre + '</td>', '<td>' + json[profe].apellido + '</td>',
-                        '<td>' + json[profe].email + '</td>', 
-                        '<td> <button class="btn btn-sucess" onclick="profesorPostUpdate()" value='+json[3]._id+' id="_id">modificar</button></td>'));
+
+            for(var i = 0; i < json.length; i++){
+                if (del === "del") {
+                    table.append($('<tr />').append('<td>' + json[i].id + '</td>',
+                        '<td>' + json[i].nombre + '</td>', '<td>' + json[i].apellido + '</td>',
+                        '<td>' + json[i].email + '</td>', 
+                        '<td> <button class="btn btn-danger" onclick="profesorDel(\''+json[i]._id+'\')">eliminar</button></td>'));
+                } else if (del === "up") {
+                    table.append($('<tr />').append('<td>' + json[i].id + '</td>',
+                        '<td>' + json[i].nombre + '</td>', '<td>' + json[i].apellido + '</td>',
+                        '<td>' + json[i].email + '</td>',  
+                        '<td> <button class="btn btn-success" onclick="profesorPostUpdate(\''+json[i]._id+'\')">modificar</button></td>'));
                 } else {
-                    table.append($('<tr />').append('<td>' + json[profe].id + '</td>',
-                        '<td>' + json[profe].nombre + '</td>', '<td>' + json[profe].apellido + '</td>',
-                        '<td>' + json[profe].email + '</td>'));
+                    table.append($('<tr />').append('<td>' + json[i].id + '</td>',
+                        '<td>' + json[i].nombre + '</td>', '<td>' + json[i].apellido + '</td>',
+                        '<td>' + json[i].email + '</td>'));
                 }
             }
+            
             $('#main').append(table);
         },
         error: function (xhr, status) {
@@ -99,10 +99,10 @@ function profesorPost() {
     });
 }
 
-function profesorDel() {
+function profesorDel(dato) {
 
     var datos = {
-        "_id": $('#_id').val()        
+        "_id": dato       
     };
     $.ajax({
         url: '/ProfesorDelete',
@@ -110,7 +110,7 @@ function profesorDel() {
         type: 'DELETE',
         dataType: 'json',
         success: function (json) {
-            profesorRead(1);
+            profesorRead("del");
         },
         error: function (xhr, status) {
             alert('Disculpe, existió un problema');
@@ -122,11 +122,11 @@ function profesorDel() {
 }
 
 function profesorDelete(){
-    profesorRead(1);
+    profesorRead("del");
 }
 
 function profesorUpdate(){
-    profesorRead(2);
+    profesorRead("up");
 }
 
 function profesorUpdateForm(json) {
@@ -148,16 +148,16 @@ function profesorUpdateForm(json) {
     div.append("<input id='email' type='email' class='form-control' value=" +json.email+ " />");
     form.append(div);
     div = $('<div />').addClass('form-group');
-    div.append("<button onclick='profesorPutUpdate()' class='btn btn-success' id='_id' value="+jason._id+"> Aceptar </div>");
+    div.append("<button onclick='profesorPutUpdate()' class='btn btn-success' id='_id' value="+json._id+"> Aceptar </div>");
     form.append(div);
     
     $('#main').append(form);
 }
 
-function profesorPostUpdate() {
+function profesorPostUpdate(datos) {
 
     var datos = {
-        "_id": $('#_id').val()        
+        "_id": datos
     };
     $.ajax({
         url: '/ProfesorUpdate',
@@ -174,6 +174,8 @@ function profesorPostUpdate() {
             //alert('Petición realizada');
         }
     });
+  
+
 }
 
 function profesorPutUpdate() {

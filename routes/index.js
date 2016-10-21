@@ -36,25 +36,25 @@ router.delete('/ProfesorDelete', function (req, res, next) {
     var Profesor = mongoose.model('Profesor');
     console.log(req.body._id);
     
-    /*Profesor.remove({"_id": req.body._id}, function (error, data){
+    Profesor.remove({"_id": req.body._id}, function (error, data){
         if (!error) {
             res.json({});
         } else {
             res.send("Error!!!!");
         }
-    });*/
+    });
 });
 
 /* POST Profesor Update */
 router.post("/ProfesorUpdate", function(req, res, next){
     var Profesor = mongoose.model('Profesor');
-    console.log(req.body._id);
+    //console.log(req.body._id);
 
-    /*Profesor.findById(req.body._id, function(err, profesor){
-        console.log(profesor);
+    Profesor.findById(req.body._id, function(err, profesor){
+        //console.log(profesor);
         if(!err)
             res.json(profesor);
-    })*/
+    })
 });
 
 /* PUT Profesor */
