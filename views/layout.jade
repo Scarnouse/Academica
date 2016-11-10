@@ -25,13 +25,13 @@ html
                       span.caret
                     ul.dropdown-menu
                       li
-                        a(href='#') Create
+                        a(href='#' onclick='alumnoForm()') Create
                       li
-                        a(href='#') Read
+                        a(href='#' onclick='alumnoRead()') Read
                       li
-                        a(href='#') Update
+                        a(href='#' onclick="alumnoUpdate()") Update
                       li
-                        a(href='#') Delete
+                        a(href='#' onclick="alumnoDelete()") Delete
                   li
                     a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-haspopup='true', aria-expanded='false')
                       | Profesor 
@@ -45,6 +45,32 @@ html
                         a(href='#' onclick='profesorUpdate()' ) Update
                       li
                         a(href='#' onclick='profesorDelete()') Delete
+                  li
+                     a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-haspopup='true', aria-expanded='false')
+                       | Asignatura 
+                       span.caret
+                     ul.dropdown-menu
+                       li
+                         a(href='#' onclick='asignaturaForm()') Create
+                       li
+                         a(href='#' onclick='asignaturaRead()') Read
+                       li
+                         a(href='#' onclick='asignaturaUpdate()' ) Update
+                       li
+                         a(href='#' onclick='asignaturaDelete()') Delete
+                   li
+                     a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-haspopup='true', aria-expanded='false')
+                       | Matricular 
+                       span.caret
+                     ul.dropdown-menu
+                       li
+                         a(href='#' onclick='cargaDatosMatricula()') Matricular Alumno
+                       li
+                         a(href='#' onclick='asignaturaRead()') Read
+                       li
+                         a(href='#' onclick='asignaturaUpdate()' ) Update
+                       li
+                         a(href='#' onclick='asignaturaDelete()') Delete
         div(id='main')
             block content 
 
