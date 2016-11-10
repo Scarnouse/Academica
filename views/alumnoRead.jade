@@ -1,0 +1,21 @@
+extends layout
+
+block content
+  div(class='panel-body')
+    a(href='/' class="col-sm-1")
+      img(src="./images/home.png" height="25" width="25" alt='Inicio' class="img-responsive")
+    p Alumnos
+  div(class='panel-body')
+    div(class='table-responsive')
+      table(class='table table-bordered table-hover table-striped')
+        tr
+          th ID
+          th NOMBRE
+          th APELLIDO
+          th EMAIL
+          each alumno in listaAlumnos
+            tr
+              td #{alumno.id}
+              td #{alumno.nombre}
+              td #{alumno.apellido}
+              td #{alumno.email}

@@ -1,0 +1,23 @@
+extends layout
+
+block content
+  div(class='panel-body')
+    a(href='/' class="col-sm-1")
+      img(src="./images/home.png" height="25" width="25" alt='Inicio' class="img-responsive")
+    p Asignaturas
+  div(class='panel-body')
+    div(class='table-responsive')
+      table(class='table table-bordered table-hover table-striped')
+        tr
+          th ID
+          th NOMBRE
+          th CICLO
+          th CURSO
+          th HORAS
+          each asignatura in listaAsignaturas
+            tr
+              td #{asignatura.id}
+              td #{asignatura.nombre}
+              td #{asignatura.ciclo}
+              td #{asignatura.curso}
+              td #{asignatura.horas}

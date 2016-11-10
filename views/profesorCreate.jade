@@ -1,0 +1,33 @@
+extends layout
+
+block content
+  div(class='panel-body')
+    a(href='/' class="col-sm-1")
+      img(src="./images/home.png" height="25" width="25" alt='Inicio' class="img-responsive")
+    p Profesor
+  form(method='POST')
+    div(class='form-group table-responsive')
+      table(class="table")
+        tr
+          th
+            label(for='id') ID
+          td
+            input(name="id" class="form-control" type="number" require)
+        tr
+          th
+            label(for="nombre") NOMBRE
+          td
+           input(name="nombre" class="form-control" type="text" require)
+        tr
+          th
+            label(for="apellido") APELLIDO
+          td
+            input(name="apellido" class="form-control" type="text" require)
+        
+        tr
+          th
+            label(for="email") EMAIL
+          td
+            input(name="email" class="form-control" type="email" require)
+    div(class="form-group")
+      button(type="submit" class='btn btn-success btn-block') ENVIAR
