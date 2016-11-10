@@ -205,4 +205,30 @@ router.post("/Matricula", function (req, res, next){
     });
 
 });
+
+/* POST ObtenerAsignaturaPorNombre */
+router.post("/ObtenerAsignaturaPorNombre", function(req, res, next){
+    mongoose.model('Asignatura').findOne({"nombre" : req.body.asignatura}, function(err, asignatura){
+        res.json(asignatura);
+    })
+});
+
+/* POST ObtenerMatriculas */
+router.post('/ObtenerMatriculas', function(req, res, body){
+    var Matricula = mongoose.model('Matricular');
+
+    Matricula.find({ asignatura : req.body}, function(err, matriculas){
+        console.log(matriculas);
+    });
+
+});
+
+/* GET Matricula */
+router.get('/Matricula', function(req, res, next){
+    mongoose.model('Matricular').find({}, function(err, matriculas){
+        if(!err) 
+            console.log(matriculas);
+    })
+});
+
 module.exports = router;

@@ -693,6 +693,57 @@ function matriculaPost(){
     });
 }
 
+function matriculaRead(){
+    $.ajax({
+        url: '/Asignatura',
+        type: 'GET',
+        dataType: 'json',
+        success: function (asignatura) {
+            //console.log(JSON.stringify(json));
+            $('#main').html('<h3>Listado Matrículas por asignatura</h3>');
+            var div = $('<div />').addClass('form-group');
+            var select = $("<select id='asignatura' class='form-control'/>");
+            for(var i = 0; i < asignatura.length; i++){
+                select.append('<option class="form-control">'+asignatura[i].nombre+'</option>');
+            }
+            div.append(select);
+            div.append('<button onclick="listarMatriculas()" class="btn btn-success form-control"> Listar </div>');
+            $('#main').append(div);
+        },
+        error: function (xhr, status) {
+            alert('Disculpe, existió un problema');
+        }
+    });
+}
+
+function listarMatriculas(){
+
+    var dato = {
+        "asignatura" : $('#asignatura').val()
+    }
+
+    $.ajax({
+        url: '/ObtenerAsignaturaPorNombre',
+        data: dato,
+        type: 'POST',
+        dataType: 'json',
+        success: function(asignatura){
+            $.ajax({
+                url: '/ObtenerMatriculas',
+                data : asignatura,
+                type : 'POST',
+                dataType: 'json',
+                success: function(){
+
+                }
+            });
+            
+        },error: function (xhr, status) {
+            alert('Disculpe, existió un problema');
+        }
+        
+    });
+}
 
 
 
