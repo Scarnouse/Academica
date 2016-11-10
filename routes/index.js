@@ -180,28 +180,29 @@ router.delete("/Asignatura", function(req, res, next){
 
 });
 
+
+
 /* POST Matricula */
 router.post("/Matricula", function (req, res, next){
 
-    var Matricula = mongoose.model('Matricular');
+    var Matricula = mongoose.model('Matricula');
     var matricula = new Matricula();
 
     var Asignatura = mongoose.model('Asignatura');
-    var asignatura = Asignatura.findOne({"nombre" : req.body.asignatura});
+    Asignatura.findOne({"nombre" : req.body.asignatura}, function(err, asignatura){
+        var Alumno = mongoose.model('Alumno');
+        Alumno.findOne({ "nombre" : req.body.nombre_alumno, "apellido" : req.body.apellido_alumno}, function (err, alumno){
+            
+            matricula.asignatura = asignatura._id;
+            matricula.alumno = alumno._id;
+            matricula.fecha_inicio = req.body.fecha_inicio;
+            matricula.fecha_final = req.body.fecha_final;
 
-
-    var Alumno = mongoose.model('Alumno');
-    var alumno = Alumno.findOne({ "nombre" : req.body.nombre_alumno, "apellido" : req.body.apellido_alumno});
-
-    matricula.asignatura = asignatura;
-    matricula.alumno = alumno;
-    matricula.fecha_inicio = req.body.fecha_inicio;
-    matricula.fecha_final = req.body.fecha_final;
-
-
-    matricula.save(function (err, matricula){
-        if(!err)
-            res.json({});
+            matricula.save(function (err, matricula){
+                if(!err)
+                    res.json({});
+            });
+        });
     });
 
 });
@@ -210,35 +211,26 @@ router.post("/Matricula", function (req, res, next){
 router.post("/ObtenerAsignaturaPorNombre", function(req, res, next){
     mongoose.model('Asignatura').findOne({"nombre" : req.body.asignatura}, function(err, asignatura){
         res.json(asignatura);
-    })
+    });
 });
 
 /* POST ObtenerMatriculas */
 router.post('/ObtenerMatriculas', function(req, res, body){
-    var Matricula = mongoose.model('Matricular');
-    var Asignatura = mongoose.model('Asignatura');
-    var asignatura = new Asignatura();
+    var Matricula = mongoose.model('Matricula');
 
-    asignatura._id = req.body._id;
-    asignatura.id = req.body.id;
-    asignatura.nombre = req.body.nombre;
-    asignatura.ciclo = req.body.ciclo;
-    asignatura.curso = req.body.curso;
-    asignatura.horas = req.body.horas;
-    asignatura.__v = req.body.__v;
-
-    Matricula.find({"asignatura" : asignatura}).populate(Matricula).exec(function (err, matricula){
-        console.log(matricula);
+    Matricula.find({ asignatura : req.body._id}, function(err, matriculas){
+        res.json(matriculas);
     });
 
 });
 
-/* GET Matricula */
-router.get('/Matricula', function(req, res, next){
-    mongoose.model('Matricular').find({}, function(err, matriculas){
-        if(!err) 
-            console.log(matriculas);
-    })
+/* POST ObtenerAlumnosPorID */
+router.post("/ObtenerAlumnosPorId", function(req, res, next){
+    var Alumno = mongoose.model('Alumno');
+
+    Alumno.findOne({ _id : req.body._id}, function(err, alumno){
+        res.json(alumno);
+    });
 });
 
 module.exports = router;

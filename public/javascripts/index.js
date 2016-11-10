@@ -607,7 +607,7 @@ function asignaturaDel(dato){
     });
 }
 
-// =========================================================================================
+// =======================================================================================================================
 
 
 function cargaDatosMatricula(){
@@ -733,8 +733,32 @@ function listarMatriculas(){
                 data : asignatura,
                 type : 'POST',
                 dataType: 'json',
-                success: function(){
-
+                success: function(matriculas){
+                    $('#main').html('<h3>Matrículas</h3>');
+                    var table = $('<table/>').addClass('table');
+                    table.append($('<tr />').append('<th>NOMBRE ALUMNO</th>', '<th>APELLIDO ALUMNO</th>', '<th>FECHA INICIO</th>', '<th>FECHA FIN</th>'));
+                    for(var i = 0; i < matriculas.length; i++){
+                        var array = matriculas[i].fecha_inicio.split("T");
+                        var partesFecha = array[0].split("-");
+                        var fecha_inicio = partesFecha[1] + "-" + partesFecha[2] + "-" +partesFecha[0];
+                        array = matriculas[i].fecha_final.split("T");
+                        partesFecha = array[0].split("-");
+                        var fecha_final = partesFecha[1] + "-" + partesFecha[2] + "-" +partesFecha[0];                     
+                        var dato = {
+                                "_id" : matriculas[i].alumno[0]
+                            }                  
+                        $.ajax({
+                            url : '/ObtenerAlumnosPorId',
+                            data : dato,
+                            type : 'POST',
+                            success : function (alumno){                              
+                                table.append($('<tr />').append('<td>' + alumno.nombre + '</td>',
+                                    '<td>' + alumno.apellido + '</td>', '<td>' + fecha_inicio + '</td>',
+                                    '<td>' + fecha_final + '</td>'));
+                            }
+                        });
+                    }
+                    $('#main').append(table);
                 }
             });
             

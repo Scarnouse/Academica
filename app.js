@@ -14,14 +14,14 @@ var db = require("./model/db.js");
 var profesor = require("./model/profesor.js");
 var alumno = require("./model/alumno.js");
 var asignatura = require("./model/asignatura.js");
-var matricular = require("./model/matricular.js");
+var matricula = require("./model/matricula.js");
 
 app.use(function (req, res, next){
     req.db = db;
     req.profesor = profesor;
     req.alumno = alumno;
     req.asignatura = asignatura;
-    req.matricular = matricular;
+    req.matricula = matricula;
     next();
 });
 
