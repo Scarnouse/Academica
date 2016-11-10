@@ -216,9 +216,19 @@ router.post("/ObtenerAsignaturaPorNombre", function(req, res, next){
 /* POST ObtenerMatriculas */
 router.post('/ObtenerMatriculas', function(req, res, body){
     var Matricula = mongoose.model('Matricular');
+    var Asignatura = mongoose.model('Asignatura');
+    var asignatura = new Asignatura();
 
-    Matricula.find({ asignatura : req.body}, function(err, matriculas){
-        console.log(matriculas);
+    asignatura._id = req.body._id;
+    asignatura.id = req.body.id;
+    asignatura.nombre = req.body.nombre;
+    asignatura.ciclo = req.body.ciclo;
+    asignatura.curso = req.body.curso;
+    asignatura.horas = req.body.horas;
+    asignatura.__v = req.body.__v;
+
+    Matricula.find({"asignatura" : asignatura}).populate(Matricula).exec(function (err, matricula){
+        console.log(matricula);
     });
 
 });
