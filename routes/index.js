@@ -233,4 +233,34 @@ router.post("/ObtenerAlumnosPorId", function(req, res, next){
     });
 });
 
+/* POST MatriculaUpdate */
+router.post("/MatriculaUpdate", function(req, res, next){
+    console.log(req.body._id);
+    mongoose.model('Matricula').findById(req.body._id, function(err, asignatura){
+        if(!err)         
+            res.json(asignatura);
+    })
+});
+
+/* PUT MatriculaPutUpdate */
+router.put("/MatriculaPutUpdate", function (req, res, next){
+    var Matricula = mongoose.model('Matricula');
+
+    var Asignatura = mongoose.model('Asignatura');
+    Asignatura.findOne({"nombre" : req.body.asignatura}, function(err, asignatura){
+        var Alumno = mongoose.model('Alumno');
+        Alumno.findOne({ "nombre" : req.body.nombre_alumno, "apellido" : req.body.apellido_alumno}, function (err, alumno){
+            //console.log(req.body);
+            Matricula.findByIdAndUpdate(req.body._id, {asignatura : asignatura._id, alumno : alumno._id, fecha_inicio : req.body.fecha_inicio, fecha_final : req.body.fecha_final},
+                function (err){
+                     if(!err)
+                        res.json({});
+                }
+            );
+        });
+    });
+
+});
+
+
 module.exports = router;

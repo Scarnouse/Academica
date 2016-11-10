@@ -7,6 +7,12 @@ function mainMenu() {
     $('#main').html(text);
 }
 
+function conversorFechas(fecha){
+    var array = fecha.split("T");
+    var partesFecha = array[0].split("-");
+    return partesFecha[1] + "/" + partesFecha[2] + "/" +partesFecha[0];
+}
+
 function profesorRead(del) {
     $.ajax({
         url: '/ProfesorRead',
@@ -651,10 +657,10 @@ function matriculaForm(asignaturas, alumnos){
     div.append(select);
     form.append(div);
     div.append('<label for="fecha_inicio">FECHA DE MATRICULA:</label>');
-    div.append('<input id="fecha_inicio" type="date" class="form-control" />');
+    div.append('<input id="fecha_inicio" type="date" class="form-control" required/>');
     form.append(div);
     div.append('<label for="fecha_final">FECHA FIN DE MATRICULA:</label>');
-    div.append('<input id="fecha_final" type="date" class="form-control" />');
+    div.append('<input id="fecha_final" type="date" class="form-control" required/>');
     form.append(div);
     div = $('<div />').addClass('form-group');
     div.append('<button onclick="matriculaPost()" class="btn btn-success"> Aceptar </div>');
@@ -693,7 +699,10 @@ function matriculaPost(){
     });
 }
 
-function matriculaRead(){
+function matriculaRead(estado){
+
+    var aqui = estado;
+
     $.ajax({
         url: '/Asignatura',
         type: 'GET',
@@ -707,7 +716,7 @@ function matriculaRead(){
                 select.append('<option class="form-control">'+asignatura[i].nombre+'</option>');
             }
             div.append(select);
-            div.append('<button onclick="listarMatriculas()" class="btn btn-success form-control"> Listar </div>');
+            div.append('<button onclick="listarMatriculas(\''+aqui+'\')" class="btn btn-success form-control"> Listar </div>');
             $('#main').append(div);
         },
         error: function (xhr, status) {
@@ -716,7 +725,7 @@ function matriculaRead(){
     });
 }
 
-function listarMatriculas(){
+function listarMatriculas(estado){
 
     var dato = {
         "asignatura" : $('#asignatura').val()
@@ -736,27 +745,53 @@ function listarMatriculas(){
                 success: function(matriculas){
                     $('#main').html('<h3>Matrículas</h3>');
                     var table = $('<table/>').addClass('table');
-                    table.append($('<tr />').append('<th>NOMBRE ALUMNO</th>', '<th>APELLIDO ALUMNO</th>', '<th>FECHA INICIO</th>', '<th>FECHA FIN</th>'));
-                    for(var i = 0; i < matriculas.length; i++){
-                        var array = matriculas[i].fecha_inicio.split("T");
-                        var partesFecha = array[0].split("-");
-                        var fecha_inicio = partesFecha[1] + "-" + partesFecha[2] + "-" +partesFecha[0];
-                        array = matriculas[i].fecha_final.split("T");
-                        partesFecha = array[0].split("-");
-                        var fecha_final = partesFecha[1] + "-" + partesFecha[2] + "-" +partesFecha[0];                     
-                        var dato = {
+                    if(estado === "up"){
+                        table.append($('<tr />').append('<th>NOMBRE ALUMNO</th>', '<th>APELLIDO ALUMNO</th>', '<th>FECHA INICIO</th>', '<th>FECHA FIN</th>', '<th></th>'));
+                    } else {                           
+                        table.append($('<tr />').append('<th>NOMBRE ALUMNO</th>', '<th>APELLIDO ALUMNO</th>', '<th>FECHA INICIO</th>', '<th>FECHA FIN</th>'));
+                    }
+                    
+                    if(estado === "up"){
+                        for(var i = 0; i < matriculas.length; i++){
+                            var fecha_inicio = conversorFechas(matriculas[i].fecha_inicio);
+                            var fecha_final = conversorFechas(matriculas[i].fecha_final);
+
+                            var id_matricula = matriculas[i]._id;
+
+                            var dato = {
                                 "_id" : matriculas[i].alumno[0]
                             }                  
-                        $.ajax({
-                            url : '/ObtenerAlumnosPorId',
-                            data : dato,
-                            type : 'POST',
-                            success : function (alumno){                              
-                                table.append($('<tr />').append('<td>' + alumno.nombre + '</td>',
-                                    '<td>' + alumno.apellido + '</td>', '<td>' + fecha_inicio + '</td>',
-                                    '<td>' + fecha_final + '</td>'));
-                            }
-                        });
+                            $.ajax({
+                                url : '/ObtenerAlumnosPorId',
+                                data : dato,
+                                type : 'POST',
+                                success : function (alumno){                              
+                                    table.append($('<tr />').append('<td>' + alumno.nombre + '</td>',
+                                        '<td>' + alumno.apellido + '</td>', '<td>' + fecha_inicio + '</td>',
+                                        '<td>' + fecha_final + '</td>',
+                                        '<td> <button class="btn btn-success" onclick="matriculaPostUpdate(\''+id_matricula+'\')">modificar</button></td>'));
+                                }
+                            });
+                        }
+                    } else {
+                        for(var i = 0; i < matriculas.length; i++){
+                            var fecha_inicio = conversorFechas(matriculas[i].fecha_inicio);
+                            var fecha_final = conversorFechas(matriculas[i].fecha_final);
+
+                            var dato = {
+                                "_id" : matriculas[i].alumno[0]
+                            }                  
+                            $.ajax({
+                                url : '/ObtenerAlumnosPorId',
+                                data : dato,
+                                type : 'POST',
+                                success : function (alumno){                              
+                                    table.append($('<tr />').append('<td>' + alumno.nombre + '</td>',
+                                        '<td>' + alumno.apellido + '</td>', '<td>' + fecha_inicio + '</td>',
+                                        '<td>' + fecha_final + '</td>'));
+                                }
+                            });
+                        }
                     }
                     $('#main').append(table);
                 }
@@ -769,5 +804,119 @@ function listarMatriculas(){
     });
 }
 
+function matriculaUpdate(){
+    matriculaRead("up");
+}
 
+function matriculaPostUpdate(datos){
+    
+    var datos = {
+        "_id": datos
+    };
 
+    $.ajax({
+        url: '/MatriculaUpdate',
+        data: datos,
+        type: 'POST',
+        dataType: 'json',
+        success: function (json) {
+            matriculaUpdateForm(json);
+        },
+        error: function (xhr, status) {
+            alert('Disculpe, existió un problema');
+        },
+        complete: function (xhr, status) {
+            //alert('Petición realizada');
+        }
+    });
+
+}
+
+function matriculaUpdateForm(matricula){
+    var matricula = matricula;
+
+    $.ajax({
+        url: '/Asignatura',
+        type: 'GET',
+        dataType: 'json',
+        success: function (asig) {
+            var asignaturas = asig;
+            $.ajax({
+                url: '/Alumno',
+                type: 'GET',
+                dataType: 'json',
+                success: function (alum) {
+                    var alumnos = alum;
+                    $('#main').html('<h3>Matricular Alumno:</h3>');
+                    var form = $('<form />').addClass('table');
+                    var div = $('<div />').addClass('form-group');
+                    div.append('<label for="asignatura">ASIGNATURA:</label>');
+                    var select = $("<select id='asignatura' class='form-control'/>");
+                    for(var i = 0; i < asignaturas.length; i++){
+                        if(matricula.asignatura[0] === asignaturas[i]._id)
+                            select.append('<option class="form-control" selected>'+asignaturas[i].nombre+'</option>');
+                        else 
+                            select.append('<option class="form-control">'+asignaturas[i].nombre+'</option>');
+                    }
+                    div.append(select);
+                    form.append(div);
+                    div.append('<label for="alumno">ALUMNO:</label>');
+                    var select = $("<select id='alumno' class='form-control'/>");
+                    for(var i = 0; i < alumnos.length; i++){
+                        if(matricula.alumno[0] === alumnos[i]._id)
+                            select.append('<option class="form-control" selected>'+alumnos[i].nombre+" "+alumnos[i].apellido+'</option>');
+                        else
+                            select.append('<option class="form-control">'+alumnos[i].nombre+" "+alumnos[i].apellido+'</option>');
+                    }
+                    div.append(select);
+                    form.append(div);
+                    div.append('<label for="fecha_inicio">FECHA DE MATRICULA:</label>');
+                    div.append('<input id="fecha_inicio" type="date" class="form-control" value = ' + conversorFechas(matricula.fecha_inicio) +' required/>');
+                    form.append(div);
+                    div.append('<label for="fecha_final">FECHA FIN DE MATRICULA:</label>');
+                    div.append('<input id="fecha_final" type="date" class="form-control" value = ' + conversorFechas(matricula.fecha_final) +' required/>');
+                    form.append(div);
+                    div = $('<div />').addClass('form-group');
+                    div.append('<button onclick="matriculaPutUpdate()" class="btn btn-success" value='+ matricula._id +' id="_id"> Aceptar </div>');
+                    form.append(div);
+    
+                    $('#main').append(form);
+                }
+            });
+        },
+        error: function (xhr, status) {
+            alert('Disculpe, existió un problema');
+        }
+    });
+}
+
+function matriculaPutUpdate() {
+
+    var nombreApellido = $("#alumno").val();
+    var array = nombreApellido.split(" ");
+
+    var datos = {
+        "_id" : $('#_id').val(),
+        "asignatura" : $('#asignatura').val(),
+        "nombre_alumno" : array[0],
+        "apellido_alumno" : array[1],
+        "fecha_inicio" : $('#fecha_inicio').val(),
+        "fecha_final" : $('#fecha_final').val(),
+    };
+
+    $.ajax({
+        url: '/MatriculaPutUpdate',
+        data: datos,
+        type: 'PUT',
+        dataType: 'json',
+        success: function (json) {
+            matriculaRead();
+        },
+        error: function (xhr, status) {
+            alert('Disculpe, existió un problema');
+        },
+        complete: function (xhr, status) {
+            //alert('Petición realizada');
+        }
+    });
+}
