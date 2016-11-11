@@ -618,22 +618,13 @@ function asignaturaDel(dato){
 
 function cargaDatosMatricula(){
     $.ajax({
-        url: '/Asignatura',
-        type: 'GET',
-        dataType: 'json',
-        success: function (json) {
-            var asignaturas = json;
-            $.ajax({
-                url: '/Alumno',
-                type: 'GET',
-                dataType: 'json',
-                success: function (alumnos) {
-                    matriculaForm(asignaturas, alumnos);
-                }
-            });
-        },
-        error: function (xhr, status) {
-            alert('Disculpe, existió un problema');
+        url : '/Matricula',
+        type : 'GET',
+        dataType : 'json',
+        success: function(datos){
+            var asignaturas = datos[0];
+            var alumnos = datos[1];
+            matriculaForm(asignaturas, alumnos);
         }
     });
 }
@@ -732,6 +723,29 @@ function listarMatriculas(estado){
     }
 
     $.ajax({
+        url : '/ListarMatriculas',
+        type : 'GET',
+        data : dato,
+        dataType : 'json',
+        success: function(array){
+            var asignaturas = array[0];
+            var alumnos = array[1];
+            var matriculas = array[2];
+
+            var asignatura_id;
+            for(var i = 0; i < asignatura.length; i++){
+                if(asignaturas[i].nombre === dato.asignatura)
+                    asignatura_id = asignaturas[i]._id;
+            }
+
+            for(var i = 0; i < matriculas.length; i++){
+                console.log(matriculas[i].asignatura);
+            }
+            
+        }
+    })
+
+    /*$.ajax({
         url: '/ObtenerAsignaturaPorNombre',
         data: dato,
         type: 'POST',
@@ -801,10 +815,10 @@ function listarMatriculas(estado){
             alert('Disculpe, existió un problema');
         }
         
-    });
+    });*/
 }
 
-function matriculaUpdate(){
+/*function matriculaUpdate(){
     matriculaRead("up");
 }
 
@@ -919,4 +933,4 @@ function matriculaPutUpdate() {
             //alert('Petición realizada');
         }
     });
-}
+}*/

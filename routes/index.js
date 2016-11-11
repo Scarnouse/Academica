@@ -180,87 +180,43 @@ router.delete("/Asignatura", function(req, res, next){
 
 });
 
-
+/* GET Matricula */
+router.get("/Matricula", function(req, res, next){
+    mongoose.model('Asignatura').find({}, function(err, asignaturas){
+        mongoose.model('Alumno').find({}, function(err, alumnos){
+            res.json([asignaturas, alumnos]);
+        });
+    });
+});
 
 /* POST Matricula */
-router.post("/Matricula", function (req, res, next){
+router.post("/Matricula", function(req, res, next){
+    mongoose.model('Asignatura').find({ nombre : req.body.asignatura }, function(err, asignatura) {
+        mongoose.model('Alumno').find({ nombre : req.body.nombre_alumno, apellido : req.body.apellido_alumno}, function (err, alumno){
+            var Matricula = mongoose.model('Matricula');
+            var matricula = new Matricula();
 
-    var Matricula = mongoose.model('Matricula');
-    var matricula = new Matricula();
-
-    var Asignatura = mongoose.model('Asignatura');
-    Asignatura.findOne({"nombre" : req.body.asignatura}, function(err, asignatura){
-        var Alumno = mongoose.model('Alumno');
-        Alumno.findOne({ "nombre" : req.body.nombre_alumno, "apellido" : req.body.apellido_alumno}, function (err, alumno){
-            
-            matricula.asignatura = asignatura._id;
-            matricula.alumno = alumno._id;
+            matricula.asignatura = asignatura;
+            matricula.alumno = alumno;
             matricula.fecha_inicio = req.body.fecha_inicio;
             matricula.fecha_final = req.body.fecha_final;
 
-            matricula.save(function (err, matricula){
-                if(!err)
-                    res.json({});
+            matricula.save(function(err){
+                res.json({});
             });
         });
     });
-
 });
 
-/* POST ObtenerAsignaturaPorNombre */
-router.post("/ObtenerAsignaturaPorNombre", function(req, res, next){
-    mongoose.model('Asignatura').findOne({"nombre" : req.body.asignatura}, function(err, asignatura){
-        res.json(asignatura);
-    });
-});
-
-/* POST ObtenerMatriculas */
-router.post('/ObtenerMatriculas', function(req, res, body){
-    var Matricula = mongoose.model('Matricula');
-
-    Matricula.find({ asignatura : req.body._id}, function(err, matriculas){
-        res.json(matriculas);
-    });
-
-});
-
-/* POST ObtenerAlumnosPorID */
-router.post("/ObtenerAlumnosPorId", function(req, res, next){
-    var Alumno = mongoose.model('Alumno');
-
-    Alumno.findOne({ _id : req.body._id}, function(err, alumno){
-        res.json(alumno);
-    });
-});
-
-/* POST MatriculaUpdate */
-router.post("/MatriculaUpdate", function(req, res, next){
-    console.log(req.body._id);
-    mongoose.model('Matricula').findById(req.body._id, function(err, asignatura){
-        if(!err)         
-            res.json(asignatura);
-    })
-});
-
-/* PUT MatriculaPutUpdate */
-router.put("/MatriculaPutUpdate", function (req, res, next){
-    var Matricula = mongoose.model('Matricula');
-
-    var Asignatura = mongoose.model('Asignatura');
-    Asignatura.findOne({"nombre" : req.body.asignatura}, function(err, asignatura){
-        var Alumno = mongoose.model('Alumno');
-        Alumno.findOne({ "nombre" : req.body.nombre_alumno, "apellido" : req.body.apellido_alumno}, function (err, alumno){
-            //console.log(req.body);
-            Matricula.findByIdAndUpdate(req.body._id, {asignatura : asignatura._id, alumno : alumno._id, fecha_inicio : req.body.fecha_inicio, fecha_final : req.body.fecha_final},
-                function (err){
-                     if(!err)
-                        res.json({});
-                }
-            );
+/* GET ListarMatriculas */
+router.get("/ListarMatriculas", function(req, res, next){
+    mongoose.model('Asignatura').find({}, function(err, asignaturas){
+        mongoose.model('Alumno').find({}, function(err, alumnos){
+            mongoose.model('Matricula').find({}, function(err, matriculas){
+                res.json([asignaturas, alumnos, matriculas]);
+            });
         });
     });
-
-});
-
+})
 
 module.exports = router;
