@@ -191,13 +191,13 @@ router.get("/Matricula", function(req, res, next){
 
 /* POST Matricula */
 router.post("/Matricula", function(req, res, next){
-    mongoose.model('Asignatura').find({ nombre : req.body.asignatura }, function(err, asignatura) {
-        mongoose.model('Alumno').find({ nombre : req.body.nombre_alumno, apellido : req.body.apellido_alumno}, function (err, alumno){
+    mongoose.model('Asignatura').findOne({ nombre : req.body.asignatura }, function(err, asignatura) {      
+        mongoose.model('Alumno').findOne({ nombre : req.body.nombre_alumno, apellido : req.body.apellido_alumno}, function (err, alumno){        
             var Matricula = mongoose.model('Matricula');
             var matricula = new Matricula();
 
-            matricula.asignatura = asignatura;
-            matricula.alumno = alumno;
+            matricula.asignatura = asignatura._id;
+            matricula.alumno = alumno._id;
             matricula.fecha_inicio = req.body.fecha_inicio;
             matricula.fecha_final = req.body.fecha_final;
 
@@ -209,14 +209,127 @@ router.post("/Matricula", function(req, res, next){
 });
 
 /* GET ListarMatriculas */
-router.get("/ListarMatriculas", function(req, res, next){
-    mongoose.model('Asignatura').find({}, function(err, asignaturas){
-        mongoose.model('Alumno').find({}, function(err, alumnos){
-            mongoose.model('Matricula').find({}, function(err, matriculas){
-                res.json([asignaturas, alumnos, matriculas]);
-            });
+router.post("/ListarMatriculas", function(req, res, next){
+    mongoose.model('Asignatura').findOne({nombre : req.body.asignatura}, function(err, dato){
+        mongoose.model('Matricula').find({asignatura : dato._id}, function(err, matriculas){
+           res.json(matriculas);
         });
     });
 })
+
+/* POST ObtenerAlumnosPorID */
+router.post("/ObtenerAlumnosPorId", function(req, res, next){
+    mongoose.model('Alumno').findOne({_id : req.body._id}, function(err, alumno){
+        res.json(alumno);
+    });
+});
+
+/* POST MatriculaUpdate */
+router.post("/MatriculaUpdate", function(req, res, next){
+    mongoose.model('Matricula').findOne({_id : req.body._id}, function(err, matricula){
+        res.json(matricula);
+    });
+});
+
+/* PUT MatriculaPutUpdate */
+router.put("/MatriculaPutUpdate", function(req, res, next){
+    mongoose.model('Asignatura').findOne({nombre : req.body.asignatura}, function(err, _asignatura){
+        mongoose.model('Alumno').findOne({nombre : req.body.nombre_alumno, apellido : req.body.apellido_alumno}, function(err, _alumno){
+            mongoose.model('Matricula').findByIdAndUpdate(req.body._id, { "asignatura" : _asignatura._id, "alumno" : _alumno._id, "fecha_inicio" : req.body.fecha_inicio, "fecha_final" : req.body.fecha_final}, function (err){
+                if(!err)
+                    res.json({});
+                else
+                    console.log(err);
+            });
+        });
+    });
+});
+
+/* DELETE Matricula */
+router.delete("/Matricula", function(req, res, next){
+    mongoose.model('Matricula').findOneAndRemove({ "_id" : req.body._id}, function(err){
+        if (!err)
+            res.json({});
+        else
+            console.log(err);
+    });
+});
+
+/* GET Asignacion */
+router.get("/Asignacion", function(req, res, next){
+    mongoose.model('Asignatura').find({}, function(err, asignaturas){
+        mongoose.model('Profesor').find({}, function(err, profesores){
+            res.json([asignaturas, profesores]);
+        });
+    });
+});
+
+/* POST Asignacion */
+router.post("/Asignacion", function(req, res, next){
+    mongoose.model('Asignatura').findOne({ nombre : req.body.asignatura }, function(err, asignatura) {      
+        mongoose.model('Profesor').findOne({ nombre : req.body.nombre_profesor, apellido : req.body.apellido_profesor}, function (err, profesor){        
+            var Asignacion = mongoose.model('Asignacion');
+            var asignacion = new Asignacion();
+
+            asignacion.asignatura = asignatura._id;
+            asignacion.profesor = profesor._id;
+            asignacion.fecha_inicio = req.body.fecha_inicio;
+            asignacion.fecha_final = req.body.fecha_final;
+            asignacion.horas = req.body.horas;
+
+            asignacion.save(function(err){
+                res.json({});
+            });
+        });
+    });
+});
+
+/* GET ListarAsignaciones */
+router.post("/ListarAsignaciones", function(req, res, next){
+    mongoose.model('Asignatura').findOne({nombre : req.body.asignatura}, function(err, dato){
+        mongoose.model('Asignacion').find({asignatura : dato._id}, function(err, asignaciones){
+           res.json(asignaciones);
+        });
+    });
+})
+
+/* POST ObtenerProfesoresPorID */
+router.post("/ObtenerProfesoresPorId", function(req, res, next){
+    mongoose.model('Profesor').findOne({_id : req.body._id}, function(err, profesor){
+        res.json(profesor);
+    });
+});
+
+/* POST AsignacionUpdate */
+router.post("/AsignacionUpdate", function(req, res, next){
+    mongoose.model('Asignacion').findOne({_id : req.body._id}, function(err, asignacion){
+        res.json(asignacion);
+    });
+});
+
+/* PUT AsignacionPutUpdate */
+router.put("/AsignacionPutUpdate", function(req, res, next){
+    mongoose.model('Asignatura').findOne({nombre : req.body.asignatura}, function(err, _asignatura){
+        console.log(req.body)
+        mongoose.model('Profesor').findOne({nombre : req.body.nombre_profesor, apellido : req.body.apellido_profesor}, function(err, _profesor){
+            mongoose.model('Asignacion').findByIdAndUpdate(req.body._id, { "asignatura" : _asignatura._id, "profesor" : _profesor._id, "fecha_inicio" : req.body.fecha_inicio, "fecha_final" : req.body.fecha_final, "horas" : req.body.horas}, function (err){
+                if(!err)
+                    res.json({});
+                else
+                    console.log(err);
+            });
+        });
+    });
+});
+
+/* DELETE Matricula */
+router.delete("/Asignacion", function(req, res, next){
+    mongoose.model('Asignacion').findOneAndRemove({ "_id" : req.body._id}, function(err){
+        if (!err)
+            res.json({});
+        else
+            console.log(err);
+    });
+});
 
 module.exports = router;

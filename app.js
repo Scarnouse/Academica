@@ -15,6 +15,7 @@ var profesor = require("./model/profesor.js");
 var alumno = require("./model/alumno.js");
 var asignatura = require("./model/asignatura.js");
 var matricula = require("./model/matricula.js");
+var asignacion = require("./model/asignacion.js");
 
 app.use(function (req, res, next){
     req.db = db;
@@ -22,6 +23,7 @@ app.use(function (req, res, next){
     req.alumno = alumno;
     req.asignatura = asignatura;
     req.matricula = matricula;
+    req.asignacion = asignacion;
     next();
 });
 

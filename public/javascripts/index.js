@@ -10,7 +10,12 @@ function mainMenu() {
 function conversorFechas(fecha){
     var array = fecha.split("T");
     var partesFecha = array[0].split("-");
-    return partesFecha[1] + "/" + partesFecha[2] + "/" +partesFecha[0];
+    return partesFecha[2] + "/" + partesFecha[1] + "/" +partesFecha[0];
+}
+
+function inversorFechas(fecha){
+    var partesFecha = fecha.split("/");
+    return partesFecha[1] + "/" + partesFecha[0] + "/" +partesFecha[2];
 }
 
 function profesorRead(del) {
@@ -718,110 +723,80 @@ function matriculaRead(estado){
 
 function listarMatriculas(estado){
 
+    var _estado = estado;
+
     var dato = {
         "asignatura" : $('#asignatura').val()
     }
-
     $.ajax({
         url : '/ListarMatriculas',
-        type : 'GET',
+        type : 'POST',
         data : dato,
         dataType : 'json',
-        success: function(array){
-            var asignaturas = array[0];
-            var alumnos = array[1];
-            var matriculas = array[2];
+        success: function(matriculas){
 
-            var asignatura_id;
-            for(var i = 0; i < asignatura.length; i++){
-                if(asignaturas[i].nombre === dato.asignatura)
-                    asignatura_id = asignaturas[i]._id;
-            }
+            var alumnos = [];
 
             for(var i = 0; i < matriculas.length; i++){
-                console.log(matriculas[i].asignatura);
+                var dato = {
+                        "_id" : matriculas[i].alumno[0]
+                    }
+                  
+                $.ajax({
+                    url : '/ObtenerAlumnosPorId',
+                    data : dato,
+                    type : 'POST',
+                    success : function (alumno){
+                        alumnos.push(alumno);
+                        pintarListado(_estado, matriculas, alumnos);                       
+                    }
+                });
             }
-            
         }
-    })
-
-    /*$.ajax({
-        url: '/ObtenerAsignaturaPorNombre',
-        data: dato,
-        type: 'POST',
-        dataType: 'json',
-        success: function(asignatura){
-            $.ajax({
-                url: '/ObtenerMatriculas',
-                data : asignatura,
-                type : 'POST',
-                dataType: 'json',
-                success: function(matriculas){
-                    $('#main').html('<h3>Matrículas</h3>');
-                    var table = $('<table/>').addClass('table');
-                    if(estado === "up"){
-                        table.append($('<tr />').append('<th>NOMBRE ALUMNO</th>', '<th>APELLIDO ALUMNO</th>', '<th>FECHA INICIO</th>', '<th>FECHA FIN</th>', '<th></th>'));
-                    } else {                           
-                        table.append($('<tr />').append('<th>NOMBRE ALUMNO</th>', '<th>APELLIDO ALUMNO</th>', '<th>FECHA INICIO</th>', '<th>FECHA FIN</th>'));
-                    }
-                    
-                    if(estado === "up"){
-                        for(var i = 0; i < matriculas.length; i++){
-                            var fecha_inicio = conversorFechas(matriculas[i].fecha_inicio);
-                            var fecha_final = conversorFechas(matriculas[i].fecha_final);
-
-                            var id_matricula = matriculas[i]._id;
-
-                            var dato = {
-                                "_id" : matriculas[i].alumno[0]
-                            }                  
-                            $.ajax({
-                                url : '/ObtenerAlumnosPorId',
-                                data : dato,
-                                type : 'POST',
-                                success : function (alumno){                              
-                                    table.append($('<tr />').append('<td>' + alumno.nombre + '</td>',
-                                        '<td>' + alumno.apellido + '</td>', '<td>' + fecha_inicio + '</td>',
-                                        '<td>' + fecha_final + '</td>',
-                                        '<td> <button class="btn btn-success" onclick="matriculaPostUpdate(\''+id_matricula+'\')">modificar</button></td>'));
-                                }
-                            });
-                        }
-                    } else {
-                        for(var i = 0; i < matriculas.length; i++){
-                            var fecha_inicio = conversorFechas(matriculas[i].fecha_inicio);
-                            var fecha_final = conversorFechas(matriculas[i].fecha_final);
-
-                            var dato = {
-                                "_id" : matriculas[i].alumno[0]
-                            }                  
-                            $.ajax({
-                                url : '/ObtenerAlumnosPorId',
-                                data : dato,
-                                type : 'POST',
-                                success : function (alumno){                              
-                                    table.append($('<tr />').append('<td>' + alumno.nombre + '</td>',
-                                        '<td>' + alumno.apellido + '</td>', '<td>' + fecha_inicio + '</td>',
-                                        '<td>' + fecha_final + '</td>'));
-                                }
-                            });
-                        }
-                    }
-                    $('#main').append(table);
-                }
-            });
-            
-        },error: function (xhr, status) {
-            alert('Disculpe, existió un problema');
-        }
-        
-    });*/
+    });
 }
 
-/*function matriculaUpdate(){
+function pintarListado(estado, matriculas, alumnos){
+    $('#main').html('<h3>Matrículas</h3>');
+    var table = $('<table/>').addClass('table');
+    if(estado === "up"){
+        table.append($('<tr />').append('<th>NOMBRE ALUMNO</th>', '<th>APELLIDO ALUMNO</th>', '<th>FECHA INICIO</th>', '<th>FECHA FIN</th>', '<th></th>'));
+    } else if(estado === "del"){ 
+        table.append($('<tr />').append('<th>NOMBRE ALUMNO</th>', '<th>APELLIDO ALUMNO</th>', '<th>FECHA INICIO</th>', '<th>FECHA FIN</th>', '<th></th>'));
+    } else {                           
+        table.append($('<tr />').append('<th>NOMBRE ALUMNO</th>', '<th>APELLIDO ALUMNO</th>', '<th>FECHA INICIO</th>', '<th>FECHA FIN</th>'));
+    }
+                    
+    if(estado === "up"){  
+        for(var i = 0; i < matriculas.length; i++){
+            table.append($('<tr />').append('<td>' + alumnos[i].nombre + '</td>',
+                '<td>' + alumnos[i].apellido + '</td>', '<td>' + conversorFechas(matriculas[i].fecha_inicio) + '</td>',
+                '<td>' + conversorFechas(matriculas[i].fecha_final) + '</td>',
+                '<td> <button class="btn btn-success" onclick="matriculaPostUpdate(\''+matriculas[i]._id+'\')">modificar</button></td>'));
+        }
+    } else if(estado === "del"){
+        for(var i = 0; i < matriculas.length; i++){
+            table.append($('<tr />').append('<td>' + alumnos[i].nombre + '</td>',
+                '<td>' + alumnos[i].apellido + '</td>', '<td>' + conversorFechas(matriculas[i].fecha_inicio) + '</td>',
+                '<td>' + conversorFechas(matriculas[i].fecha_final) + '</td>',
+                '<td> <button class="btn btn-danger" onclick="matriculaDel(\''+matriculas[i]._id+'\')">borrar</button></td>'));
+        }    
+    } else {
+        for(var i = 0; i < matriculas.length; i++){
+            table.append($('<tr />').append('<td>' + alumnos[i].nombre + '</td>',
+                '<td>' + alumnos[i].apellido + '</td>', '<td>' + conversorFechas(matriculas[i].fecha_inicio) + '</td>',
+                '<td>' + conversorFechas(matriculas[i].fecha_final) + '</td>'));
+        } 
+    }
+    $('#main').append(table);
+
+}
+
+function matriculaUpdate(){
     matriculaRead("up");
 }
 
+    
 function matriculaPostUpdate(datos){
     
     var datos = {
@@ -914,8 +889,8 @@ function matriculaPutUpdate() {
         "asignatura" : $('#asignatura').val(),
         "nombre_alumno" : array[0],
         "apellido_alumno" : array[1],
-        "fecha_inicio" : $('#fecha_inicio').val(),
-        "fecha_final" : $('#fecha_final').val(),
+        "fecha_inicio" : inversorFechas($('#fecha_inicio').val()),
+        "fecha_final" : inversorFechas($('#fecha_final').val())
     };
 
     $.ajax({
@@ -933,4 +908,361 @@ function matriculaPutUpdate() {
             //alert('Petición realizada');
         }
     });
-}*/
+}
+
+function matriculaDelete(){
+    matriculaRead("del");
+}
+
+function matriculaDel(dato){
+
+    datos = {
+        "_id" : dato
+    }
+
+    $.ajax({
+        url: '/Matricula',
+        data: datos,
+        type: 'DELETE',
+        dataType: 'json',
+        success: function (json) {
+            matriculaRead();
+        },
+        error: function (xhr, status) {
+            alert('Disculpe, existió un problema');
+        },
+        complete: function (xhr, status) {
+            //alert('Petición realizada');
+        }
+    });
+
+}
+
+// ========================================================
+
+function cargaDatosAsignacion(){
+    $.ajax({
+        url : '/Asignacion',
+        type : 'GET',
+        dataType : 'json',
+        success: function(datos){
+            var asignaturas = datos[0];
+            var profesores = datos[1];
+            asignacionForm(asignaturas, profesores);
+        }
+    });
+}
+
+function asignacionForm(asignaturas, profesores){
+   $('#main').html('<h3>Asignar Materia a Profesor:</h3>');
+    var form = $('<form />').addClass('table');
+    var div = $('<div />').addClass('form-group');
+    div.append('<label for="asignatura">ASIGNATURA:</label>');
+    var select = $("<select id='asignatura' class='form-control'/>");
+    for(var i = 0; i < asignaturas.length; i++){
+        select.append('<option class="form-control">'+asignaturas[i].nombre+'</option>');
+    }
+    div.append(select);
+    form.append(div);
+    div.append('<label for="alumno">ALUMNO:</label>');
+    var select = $("<select id='profesor' class='form-control'/>");
+    for(var i = 0; i < profesores.length; i++){
+        select.append('<option class="form-control">'+profesores[i].nombre+" "+profesores[i].apellido+'</option>');
+    }
+    div.append(select);
+    form.append(div);
+    div.append('<label for="horas">HORAS:</label>');
+    div.append('<input id="horas" type="number" class="form-control" required/>');
+    form.append(div);
+    div.append('<label for="fecha_inicio">FECHA DE INICIO:</label>');
+    div.append('<input id="fecha_inicio" type="date" class="form-control" required/>');
+    form.append(div);
+    div.append('<label for="fecha_final">FECHA FIN:</label>');
+    div.append('<input id="fecha_final" type="date" class="form-control" required/>');
+    form.append(div);
+    div = $('<div />').addClass('form-group');
+    div.append('<button onclick="asignacionPost()" class="btn btn-success"> Aceptar </div>');
+    form.append(div);
+    
+    $('#main').append(form);
+}
+
+function asignacionPost(){
+
+    var nombreApellido = $("#profesor").val();
+    var array = nombreApellido.split(" ");
+
+    var datos = {
+        "asignatura" : $('#asignatura').val(),
+        "nombre_profesor" : array[0],
+        "apellido_profesor" : array[1],
+        "horas" : $('#horas').val(),
+        "fecha_inicio" : $('#fecha_inicio').val(),
+        "fecha_final" : $('#fecha_final').val(),
+    };
+
+    $.ajax({
+        url: '/Asignacion',
+        data: datos,
+        type: 'POST',
+        dataType: 'json',
+        success: function (json) {
+            asignacionRead();
+        },
+        error: function (xhr, status) {
+            alert('Disculpe, existió un problema');
+        },
+        complete: function (xhr, status) {
+            //alert('Petición realizada');
+        }
+    });
+}
+
+function asignacionRead(estado){
+
+    var aqui = estado;
+
+    $.ajax({
+        url: '/Asignatura',
+        type: 'GET',
+        dataType: 'json',
+        success: function (asignatura) {
+            //console.log(JSON.stringify(json));
+            $('#main').html('<h3>Listado Matrículas por asignatura</h3>');
+            var div = $('<div />').addClass('form-group');
+            var select = $("<select id='asignatura' class='form-control'/>");
+            for(var i = 0; i < asignatura.length; i++){
+                select.append('<option class="form-control">'+asignatura[i].nombre+'</option>');
+            }
+            div.append(select);
+            div.append('<button onclick="listarAsignaciones(\''+aqui+'\')" class="btn btn-success form-control"> Listar </div>');
+            $('#main').append(div);
+        },
+        error: function (xhr, status) {
+            alert('Disculpe, existió un problema');
+        }
+    });
+}
+
+function listarAsignaciones(estado){
+
+    var _estado = estado;
+
+    var dato = {
+        "asignatura" : $('#asignatura').val()
+    }
+    $.ajax({
+        url : '/ListarAsignaciones',
+        type : 'POST',
+        data : dato,
+        dataType : 'json',
+        success: function(asignaciones){
+
+            var profesores = [];
+
+            for(var i = 0; i < asignaciones.length; i++){
+                var dato = {
+                        "_id" : asignaciones[i].profesor[0]
+                    }
+                  
+                $.ajax({
+                    url : '/ObtenerProfesoresPorId',
+                    data : dato,
+                    type : 'POST',
+                    success : function (profesor){
+                        profesores.push(profesor);
+                        pintarListadoAsignaciones(_estado, asignaciones, profesores);                       
+                    }
+                });
+            }
+        }
+    });
+}
+
+function pintarListadoAsignaciones(estado, asignaciones, profesores){
+    $('#main').html('<h3>Asignaciones</h3>');
+    var table = $('<table/>').addClass('table');
+    if(estado === "up"){
+        table.append($('<tr />').append('<th>NOMBRE PROFESOR</th>', '<th>APELLIDO PROFESOR</th>', '<th>HORAS</th>', '<th>FECHA INICIO</th>', '<th>FECHA FIN</th>', '<th></th>'));
+    } else if(estado === "del"){ 
+        table.append($('<tr />').append('<th>NOMBRE PROFESOR</th>', '<th>APELLIDO PROFESOR</th>', '<th>HORAS</th>', '<th>FECHA INICIO</th>', '<th>FECHA FIN</th>', '<th></th>'));
+    } else {                           
+        table.append($('<tr />').append('<th>NOMBRE PROFESOR</th>', '<th>APELLIDO PROFESOR</th>', '<th>HORAS</th>', '<th>FECHA INICIO</th>', '<th>FECHA FIN</th>'));
+    }
+                    
+    if(estado === "up"){  
+        for(var i = 0; i < asignaciones.length; i++){
+            table.append($('<tr />').append('<td>' + profesores[i].nombre + '</td>',
+                '<td>' + profesores[i].apellido + '</td>', '<td>' +asignaciones[i].horas+ '</td>',
+                '<td>' + conversorFechas(asignaciones[i].fecha_inicio) + '</td>',
+                '<td>' + conversorFechas(asignaciones[i].fecha_final) + '</td>',
+                '<td> <button class="btn btn-success" onclick="asignacionesPostUpdate(\''+asignaciones[i]._id+'\')">modificar</button></td>'));
+        }
+    } else if(estado === "del"){
+        for(var i = 0; i < asignaciones.length; i++){
+            table.append($('<tr />').append('<td>' + profesores[i].nombre + '</td>',
+                '<td>' + profesores[i].apellido + '</td>', '<td>' +asignaciones[i].horas+ '</td>',
+                '<td>' + conversorFechas(asignaciones[i].fecha_inicio) + '</td>',
+                '<td>' + conversorFechas(asignaciones[i].fecha_final) + '</td>',
+                '<td> <button class="btn btn-danger" onclick="asignacionDel(\''+asignaciones[i]._id+'\')">borrar</button></td>'));
+        }    
+    } else {
+        for(var i = 0; i < asignaciones.length; i++){
+            table.append($('<tr />').append('<td>' + profesores[i].nombre + '</td>',
+                '<td>' + profesores[i].apellido + '</td>', '<td>' +asignaciones[i].horas+ '</td>',
+                '<td>' + conversorFechas(asignaciones[i].fecha_inicio) + '</td>',
+                '<td>' + conversorFechas(asignaciones[i].fecha_final) + '</td>'));
+        } 
+    }
+    $('#main').append(table);
+
+}
+
+function asignacionUpdate(){
+    asignacionRead("up");
+}
+
+function asignacionesPostUpdate(datos){
+    
+    var datos = {
+        "_id": datos
+    };
+
+    $.ajax({
+        url: '/AsignacionUpdate',
+        data: datos,
+        type: 'POST',
+        dataType: 'json',
+        success: function (json) {
+            asignacionUpdateForm(json);
+        },
+        error: function (xhr, status) {
+            alert('Disculpe, existió un problema');
+        },
+        complete: function (xhr, status) {
+            //alert('Petición realizada');
+        }
+    });
+
+}
+
+function asignacionUpdateForm(asignacion){
+    var asignacion = asignacion;
+
+    $.ajax({
+        url: '/Asignatura',
+        type: 'GET',
+        dataType: 'json',
+        success: function (asig) {
+            var asignaturas = asig;
+            $.ajax({
+                url: '/ProfesorRead',
+                type: 'GET',
+                dataType: 'json',
+                success: function (profe) {
+                    var profesores = profe;
+                    $('#main').html('<h3>Modificar Asignación Profesor:</h3>');
+                    var form = $('<form />').addClass('table');
+                    var div = $('<div />').addClass('form-group');
+                    div.append('<label for="asignatura">ASIGNATURA:</label>');
+                    var select = $("<select id='asignatura' class='form-control'/>");
+                    for(var i = 0; i < asignaturas.length; i++){
+                        if(asignacion.asignatura[0] === asignaturas[i]._id)
+                            select.append('<option class="form-control" selected>'+asignaturas[i].nombre+'</option>');
+                        else 
+                            select.append('<option class="form-control">'+asignaturas[i].nombre+'</option>');
+                    }
+                    div.append(select);
+                    form.append(div);
+                    div.append('<label for="profesor">PROFESOR:</label>');
+                    var select = $("<select id='profesor' class='form-control'/>");
+                    for(var i = 0; i < profesores.length; i++){
+                        if(asignacion.profesor[0] === profesores[i]._id)
+                            select.append('<option class="form-control" selected>'+profesores[i].nombre+" "+profesores[i].apellido+'</option>');
+                        else
+                            select.append('<option class="form-control">'+profesores[i].nombre+" "+profesores[i].apellido+'</option>');
+                    }
+                    div.append(select);
+                    form.append(div);
+                    div.append('<label for="horas">HORAS:</label>');
+                    div.append('<input id="horas" type="date" class="form-control" value = ' + asignacion.horas +' required/>');
+                    form.append(div);
+                    div.append('<label for="fecha_inicio">FECHA DE MATRICULA:</label>');
+                    div.append('<input id="fecha_inicio" type="date" class="form-control" value = ' + conversorFechas(asignacion.fecha_inicio) +' required/>');
+                    form.append(div);
+                    div.append('<label for="fecha_final">FECHA FIN DE MATRICULA:</label>');
+                    div.append('<input id="fecha_final" type="date" class="form-control" value = ' + conversorFechas(asignacion.fecha_final) +' required/>');
+                    form.append(div);
+                    div = $('<div />').addClass('form-group');
+                    div.append('<button onclick="asignacionPutUpdate()" class="btn btn-success" value='+ asignacion._id +' id="_id"> Aceptar </div>');
+                    form.append(div);
+    
+                    $('#main').append(form);
+                }
+            });
+        },
+        error: function (xhr, status) {
+            alert('Disculpe, existió un problema');
+        }
+    });
+}
+
+function asignacionPutUpdate() {
+
+    var nombreApellido = $("#profesor").val();
+    var array = nombreApellido.split(" ");
+
+    var datos = {
+        "_id" : $('#_id').val(),
+        "asignatura" : $('#asignatura').val(),
+        "nombre_profesor" : array[0],
+        "apellido_profesor" : array[1],
+        "horas" : $('#horas').val(),
+        "fecha_inicio" : inversorFechas($('#fecha_inicio').val()),
+        "fecha_final" : inversorFechas($('#fecha_final').val())
+    };
+
+    $.ajax({
+        url: '/AsignacionPutUpdate',
+        data: datos,
+        type: 'PUT',
+        dataType: 'json',
+        success: function (json) {
+           asignacionRead();
+        },
+        error: function (xhr, status) {
+            alert('Disculpe, existió un problema');
+        },
+        complete: function (xhr, status) {
+            //alert('Petición realizada');
+        }
+    });
+}
+
+function asignacionDelete(){
+    asignacionRead("del");
+}
+
+function asignacionDel(dato){
+
+    datos = {
+        "_id" : dato
+    }
+
+    $.ajax({
+        url: '/Asignacion',
+        data: datos,
+        type: 'DELETE',
+        dataType: 'json',
+        success: function (json) {
+            asignacionRead();
+        },
+        error: function (xhr, status) {
+            alert('Disculpe, existió un problema');
+        },
+        complete: function (xhr, status) {
+            //alert('Petición realizada');
+        }
+    });
+
+}

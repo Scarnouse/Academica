@@ -2,8 +2,8 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var matriculaSchema = Schema({
-    asignatura : [mongoose.model('Asignatura').schema],
-    alumno : [mongoose.model('Alumno').schema],
+    asignatura : [{ type : Schema.ObjectId, ref : 'Asignatura'}],
+    alumno : [{ type : Schema.ObjectId, ref : 'Alumno'}],
     fecha_inicio : Date,
     fecha_final : Date
 });

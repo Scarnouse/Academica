@@ -70,7 +70,20 @@ html
                        li
                          a(href='#' onclick='matriculaUpdate()' ) Modificar Matricula
                        li
-                         a(href='#' onclick='asignaturaDelete()') Delete
+                         a(href='#' onclick='matriculaDelete()') Borrar Matricula
+                    li
+                     a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-haspopup='true', aria-expanded='false')
+                       | Asignación de Profesor
+                       span.caret
+                     ul.dropdown-menu
+                       li
+                         a(href='#' onclick='cargaDatosAsignacion()') Asignar Profesor a Materia
+                       li
+                         a(href='#' onclick='asignacionRead()') Listado de Asignaciones
+                       li
+                         a(href='#' onclick='asignacionUpdate()' ) Modificar Asignación
+                       li
+                         a(href='#' onclick='asignacionDelete()') Borrar Asignación
         div(id='main')
             block content 
 
