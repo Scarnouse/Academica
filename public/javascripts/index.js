@@ -674,8 +674,8 @@ function matriculaPost(){
         "asignatura" : $('#asignatura').val(),
         "nombre_alumno" : array[0],
         "apellido_alumno" : array[1],
-        "fecha_inicio" : $('#fecha_inicio').val(),
-        "fecha_final" : $('#fecha_final').val(),
+        "fecha_inicio" : inversorFechas($('#fecha_inicio').val()),
+        "fecha_final" : inversorFechas($('#fecha_final').val())
     };
 
     $.ajax({
@@ -997,8 +997,8 @@ function asignacionPost(){
         "nombre_profesor" : array[0],
         "apellido_profesor" : array[1],
         "horas" : $('#horas').val(),
-        "fecha_inicio" : $('#fecha_inicio').val(),
-        "fecha_final" : $('#fecha_final').val(),
+        "fecha_inicio" : inversorFechas($('#fecha_inicio').val()),
+        "fecha_final" : inversorFechas($('#fecha_final').val())
     };
 
     $.ajax({
